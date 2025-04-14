@@ -122,12 +122,33 @@ Some example outputs from segmenting `test_files/test_volume.npy` (a Xe Plasma F
   <em>Comparison of greyscale and segmented dataset.</em>
 </p>
 
-The automated code assumes that `0.0` and `0.3` is a reasonable range for  
+The automated code assumes that `0.0` and `0.3` is a reasonable range for  running the gradient threshold sweep. If the gradient threshold does not yield a clear minimum, or if more thresholds should be tested, you can run the code as follows:
+
+<pre>python main.py "./path/to/file.npy" full -b_thresh 0.0 -t_thresh 5.0 -nthresh 100 -comp parallel </pre>
+
+The code above will run the threshold sweep with `100` values ranging from `0.0` to `5.0`. `-comp parallel` will have the code use all available processing cores to run the sweep in parallel. 
 
 #### Manual Segmentation
 
+Three segmentation steps can be run manually if desired. 
 
+If only running the threshold is desired:
 
+<pre>python main.py "./path/to/file.npy" thresh -b_thresh 0.0 -t_thresh 5.0 -nthresh 100 -mode parallel </pre>
+
+The code snipped above will compute the gradient image of `file.npy` and run the gradient threshold sweep from `0.0` to `5.0` with `100` values. Results will be saved in `num_markers.csv` 
+
+If wanting to run the watershed at a specific gradient threshold:
+
+<pre>python main.py "./path/to/file.npy" watershed 0.15 </pre>
+
+The code snippet above will compute the gradient image of `file.npy` and perform the watershed transform with the gradient threshold `0.15`. Output files from step 4 above will be saved. 
+
+If want to phase-ID a watershedded image:
+
+<pre>python main.py "./path/to/file_avg_img.npy" phase_id 100 180 </pre>
+
+The code snippet above will phase-ID the input post-watershed image with regions assigned the marker average greyscale according to black-grey threshold `100` and grey-white threshold `180`. 
 
 
 
