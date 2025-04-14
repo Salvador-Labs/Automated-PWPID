@@ -68,4 +68,5 @@ The figure below shows a comparison between the grayscale images, gradient image
 Bear this in mind: if your microstructure contains a spatially heterogeneous distribution of boundary gradients (i.e. parts of the image have sharp boundaries and other parts have blurry boundaries), the value for `h` that yields the best _overall_ gradient distribution may cause excessively low-gradient (blurry) boundaries in other parts of the distribution. This can result in significant under-segmentation. You can spot this problem prior to segmentation by inspecting the gradient image at locations with blurry boundaries. If the boundary(ies) of interest are dark in color relative to their sharp neighboring boundaries, use a lower `h` value.
 
 
+### Segmenting with `main.py`
 
