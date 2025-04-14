@@ -78,11 +78,11 @@ Segmentation can be performed manually or automatically using `main.py`. A 3D im
 
 This line of code will do the following:
 1. Compute a gradient image of `file.npy` and save it at `./path/to/file_gradients.npy`
-2. Perform a paramteric sweep of the gradient threshold. 
+2. Perform a paramteric sweep of a threshold applied to the gradient image (the thresholded volume is used as markers). 
 3. Plot the results of the gradient threshold sweep (saved as `num_marker.csv` and `file_thresh_sweep.png`) and determine which tested gradient threshold yielded the maximum number of markers. 
 4. Watershed `file_gradients.npy` using markers obtained using the threshold determined in the previous step. 
 5. Analyze the distribution of marker average greyscales and find the two minima between the three greyscale distributions (two thresholds to separate three phases).
-6. Apply grayscale thresholds to watershedded image, yielding the final phase segmented image. This will be saved at `./path/to/file_final_seg.npy`
+6. Apply the greyscale thresholds to the watershedded image, yielding the final phase segmented image. This will be saved at `./path/to/file_final_seg.npy`
 
 
 
