@@ -44,7 +44,7 @@ Here's a simple example:
 The code above will run a parametric sweep of the filter cutoff (read more about how NLM filtering works [here](https://doi.org/10.1109/CVPR.2005.38)) and plot the resulting gradient distributions and sample gradient image. These results will be saved in `./path/to/file_NLM_SWEEP` or `./path/to/file_NLM_SWEEP_i` if there are preexisting sweep results.
 
 <p align="center">
-  <img src="README_IMAGES/impact_of_filtering.png" width="400"/>
+  <img src="README_IMAGES/impact_of_filtering.png" width="800"/>
   <br>
   <em>Comparison of unfiltered and filtered images: greyscale images, gradient images, greyscale distribution, gradient distribution.</em>
 </p>
