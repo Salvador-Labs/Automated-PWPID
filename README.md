@@ -70,3 +70,5 @@ Bear this in mind: if your microstructure contains a spatially heterogeneous dis
 
 ### Segmenting with `main.py`
 
+If you have not read the prior section on [image pre-processing](#-usage)
+
