@@ -81,14 +81,14 @@ This line of code will do the following:
 	- Gradient image will be saved at  `./path/to/file_gradients.npy`
 2. Perform a paramteric sweep of a threshold applied to the gradient image (the thresholded volume is used as markers). 
 3. Plot the results of the gradient threshold sweep and determine which tested gradient threshold yielded the maximum number of markers. 
-	-  Tested gradient thresholds and corresponding number of markers are saved in `num_marker.csv` 
+	-  Tested gradient thresholds and corresponding number of markers are saved in `file_num_marker.csv` 
 	-  Gradient threshold sweep results are plotted in  `file_thresh_sweep.png`
-4. Watershed `file_gradients.npy` using markers obtained using the threshold determined in the previous step. 
+4. Watershed `file_gradients.npy` using markers obtained after applying the threshold determined in the previous step. 
 	- Watershedded image with watershed regions assigned _unique labels_ is saved at `file_seg_img.npy`.
 	- Watershedded image with watershed regions assigned the _average voxel greyscale value of their parent marker_ is saved at `file_avg_img.npy`.
 	- The average greyscale of each marker is saved in `file_avg_grey.npy`.
-	- The size of each watershed region is saved in `file_size.npy'
-	- The size of each marker is saved in `file_marker_size.npy'
+	- The size of each watershed region is saved in `file_size.npy`
+	- The size of each marker is saved in `file_marker_size.npy`
 5. Analyze the distribution of marker average greyscales and find the two minima between the three greyscale distributions (two thresholds to separate three phases). 
 	- Resulting distribution and thresholds are plotted in `file_post-water_dist.png`.
 6. Apply the greyscale thresholds to the watershedded image, yielding the final phase segmented image. 
