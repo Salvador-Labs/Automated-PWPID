@@ -102,8 +102,27 @@ This line of code will do the following:
 	- A preview slice of the segmented image will be saved at `./path/to/file_final_slice_0.png`
 	- Final segmentation parameters will be saved in `./path/to/file_seg_params.txt`
 	
-Some example outputs are shown below 
+Some example outputs from segmenting `test_files/test_volume.npy` (a Xe Plasma FIB-SEM reconstruction of an SOFC cathode) are shown below 
 
+<p align="center">
+  <img src="test_files/test_volume_thresh_sweep.png" width="800"/>
+  <br>
+  <em>Results of gradient threshold sweep: Number of Markers. Vs Gradient Threshold</em>
+</p>
+
+<p align="center">
+  <img src="test_files/test_volume_post-water_dist.png" width="800"/>
+  <br>
+  <em>Post watershed distribution (black) and greyscale thresholds (red) at 106 and 184. </em>
+</p>
+
+<p align="center">
+  <img src="test_files/test_volume_final_slice_0.png" width="800"/>
+  <br>
+  <em>Comparison of greyscale and segmented dataset.</em>
+</p>
+
+#### Manual Segmentation
 
 
 
