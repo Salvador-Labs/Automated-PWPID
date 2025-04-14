@@ -105,13 +105,13 @@ This line of code will do the following:
 Some example outputs from segmenting `test_files/test_volume.npy` (a Xe Plasma FIB-SEM reconstruction of an SOFC cathode) are shown below 
 
 <p align="center">
-  <img src="test_files/test_volume_thresh_sweep.png" width="800"/>
+  <img src="test_files/test_volume_thresh_sweep.png" width="500"/>
   <br>
   <em>Results of gradient threshold sweep: Number of Markers. Vs Gradient Threshold</em>
 </p>
 
 <p align="center">
-  <img src="test_files/test_volume_post-water_dist.png" width="800"/>
+  <img src="test_files/test_volume_post-water_dist.png" width="500"/>
   <br>
   <em>Post watershed distribution (black) and greyscale thresholds (red) at 106 and 184. </em>
 </p>
