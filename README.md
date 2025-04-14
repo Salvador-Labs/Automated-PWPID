@@ -13,11 +13,18 @@ This project performs 3D segmentation on 3-phase microstructure datasets where p
 ## 📁 Repository Structure
 
 Automatic-PWPID/ 
+
 ├── main.py # Main segmentation script 
+
 ├── segmentation_utils.py # Helper functions 
+
 ├── NLM_FILTER.py # Script for running non-local means filtering
+
 ├── test_files/ # Example data for testing script 
+
 ├── requirements.txt # Dependencies 
+
 └── README.md # Project documentation
+
 
 
