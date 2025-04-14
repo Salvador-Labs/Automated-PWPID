@@ -157,7 +157,7 @@ if __name__ == '__main__':
                 filter_img(inp)
 
         elif args.comp == 'parallel':
-            print("Running in parallel mode with",mp.cpu_count())
+            print("Running in parallel mode with",mp.cpu_count(),"cores")
 
             pqdm(inputs,filter_img,n_jobs=mp.cpu_count())
 

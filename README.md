@@ -29,6 +29,26 @@ Automated-PWPID/
 
 ---
 
+## Installation and Dependencies
+
+All segmentation codes are written in Python, which can be downloaded and installed [here](https://www.python.org/downloads/). Codes have been tested for Python version 3.11.8. 
+
+Dependencies are listed in `requirements.txt`. You can create a virtual environment for executing the segmentation with the code snippet below.  
+
+<pre>conda install numpy
+conda install matplotlib
+conda install scipy
+conda install scikit-image
+conda install opencv
+conda install pandas 
+conda install tqdm
+pip install connected-components-3d
+pip install pqdm
+pip install PyWavelets
+</pre>
+
+--
+
 ## 🛠️ Usage
 
 Two main files are used for segmentation: `NLM_FILTER.py` helps prepare data for segmentation and `main.py` performs segmentation.
@@ -132,13 +152,13 @@ The code above will run the threshold sweep with `100` values ranging from `0.0`
 
 Three segmentation steps can be run manually if desired. 
 
-If only running the threshold is desired:
+If only running the gradient threshold sweep is desired:
 
 <pre>python main.py "./path/to/file.npy" thresh -b_thresh 0.0 -t_thresh 5.0 -nthresh 100 -mode parallel </pre>
 
 The code snipped above will compute the gradient image of `file.npy` and run the gradient threshold sweep from `0.0` to `5.0` with `100` values. Results will be saved in `num_markers.csv` 
 
-If wanting to run the watershed at a specific gradient threshold:
+If wanting to watershed an image at a specific gradient threshold:
 
 <pre>python main.py "./path/to/file.npy" watershed 0.15 </pre>
 
