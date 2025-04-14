@@ -122,6 +122,8 @@ Some example outputs from segmenting `test_files/test_volume.npy` (a Xe Plasma F
   <em>Comparison of greyscale and segmented dataset.</em>
 </p>
 
+The automated code assumes that `0.0` and `0.3` is a reasonable range for  
+
 #### Manual Segmentation
 
 
