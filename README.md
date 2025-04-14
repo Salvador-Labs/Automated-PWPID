@@ -70,5 +70,24 @@ Bear this in mind: if your microstructure contains a spatially heterogeneous dis
 
 ### Segmenting with `main.py`
 
-If you have not read the prior section on [image pre-processing](#-image-pre-processing-with-`nlm_filter.py`)
+If you have not read the prior section on image pre-processing, it is highly recommended to do so. 
+
+Segmentation can be performed manually or automatically using `main.py`. A 3D image can be segmented automatically with the following line
+
+<pre>python main.py "./path/to/file.npy" full </pre>
+
+This line of code will do the following:
+1. Compute a gradient image of `file.npy` and save it at `./path/to/file_gradients.npy`
+2. Perform a paramteric sweep of the gradient threshold. 
+3. Plot the results of the gradient threshold sweep (saved as `num_marker.csv` and `file_thresh_sweep.png`) and determine which tested gradient threshold yielded the maximum number of markers. 
+4. Watershed `file_gradients.npy` using markers obtained using the threshold determined in the previous step. 
+5. Analyze the distribution of marker average greyscales and find the two minima between the three greyscale distributions (two thresholds to separate three phases).
+6. Apply grayscale thresholds to watershedded image, yielding the final phase segmented image. This will be saved at `./path/to/file_final_seg.npy`
+
+
+
+
+
+
+
 
