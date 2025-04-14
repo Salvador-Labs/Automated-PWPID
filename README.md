@@ -43,7 +43,13 @@ Here's a simple example:
 
 The code above will run a parametric sweep of the filter cutoff `h` (read more about how NLM filtering works [here](https://doi.org/10.1109/CVPR.2005.38)) and plot the resulting gradient distributions and sample gradient image. These results will be saved in `./path/to/file_NLM_SWEEP` or `./path/to/file_NLM_SWEEP_i` if there are preexisting sweep results. Figures will be saved with the resulting gradient distributions and sample gradient images. 
 
-#### How do to select `h`?
+`NLM_FILTER.py` has options to manually enter sweep parameters. Here's an example:
+
+<pre>python NLM_FILTER.py "./path/to/file.npy" sweep   -b_h 1.0 -t_h 10.0 -nh 50 -comp parallel -save True </pre>
+
+The code snippet above will test 50 equally-spaced values for `h` ranging from `1.0` to `5.0`. `-b_h` and `-t_h` specify the minimum and maximum `h` values to test, respectively. The default values are `0.0` and `5.0`, respectively. `-nh` specifies how many `h` values to test (default is `10`).  `-comp` allows the user to run the sweep either in `serial` or `parallel`. `serial` mode tests one filter at a time while `parallel` uses all available processing cores to test the filters in parallel. The default mode is `serial`. It is recommended to use `parallel` mode unless the size of the 3D image being filtered is a significant portion of your computer's RAM. `-save` specifies whether or not to save the 3D image filtered at each tested `h`. The default `-save` is `False`.
+
+#### How to select proper `h` value?
 
 The figure below shows a comparison between the grayscale images, gradient images, greyscale distributions, and gradient distributions before and after NLM filtering. The greyscale image below contains curtaining artifacts and intra-region greyscale variability that show up as grey patches in the gradient image and tall second and third maxima in the gradient distribution. These kinds of artifacts/noise can cause issues during segmentation. When selecting a filter cutoff `h`, it is recommended that the value should be selected that yields the _tallest_ first peak in the gradient distribution and the _lowest_ second and third peak. A tall first peak signifies low intra region greyscale variability and low second and third peaks signify sharp inter-phase boundaries, which are ideal for segmentation. If the filtering is _too_  aggressive  (h is too high), the three peaks will begin to merge as boundaries are blurred together. 
 
