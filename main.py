@@ -73,3 +73,4 @@ if __name__ == '__main__':
         # Phase-ID image
         seg.phase_id_main(os.path.splitext(args.filename)[0]+'_avg_img.npy',bg_thresh, gw_thresh,full=True)
 
+        seg.save_thresholds_to_file(max_marker_thresh, bg_thresh, gw_thresh, args.filename)

@@ -1,6 +1,6 @@
-# 📦 Automatic-PWPID
+# 📦 Automated-PWPID
 
-Automatic Post-Watershed Phase-ID Segmentation (PWPID): automatically segments 3D, 3-phase microstructure images using watershed transform. 
+Automated Post-Watershed Phase-ID Segmentation (PWPID):  segments 3D, 3-phase microstructure images using watershed transform. 
 
 ---
 
@@ -12,7 +12,7 @@ This project performs 3D segmentation on 3-phase microstructure datasets where p
 
 ## 📁 Repository Structure
 
-Automatic-PWPID/ 
+Automated-PWPID/ 
 
 ├── main.py # Main segmentation script 
 
@@ -72,7 +72,13 @@ Bear this in mind: if your microstructure contains a spatially heterogeneous dis
 
 If you have not read the prior section on image pre-processing, it is highly recommended to do so. 
 
-Segmentation can be performed manually or automatically using `main.py`. A 3D image can be segmented automatically with the following line
+The codes herein implement manual and automated versions of the segmentation methodology detailed in  _Automated Phase Segmentation with Quantifiable Sensitivities of Three-Phase Microstructures of Solid Oxide Cell Electrodes_ submitted to Materials Characterization (under review).
+
+Segmentation can be performed manually or in an automated fashion using `main.py`. 
+
+#### Automated Segmentation
+
+A 3D image can be segmented using the automated method with the following line
 
 <pre>python main.py "./path/to/file.npy" full </pre>
 
@@ -92,7 +98,11 @@ This line of code will do the following:
 5. Analyze the distribution of marker average greyscales and find the two minima between the three greyscale distributions (two thresholds to separate three phases). 
 	- Resulting distribution and thresholds are plotted in `file_post-water_dist.png`.
 6. Apply the greyscale thresholds to the watershedded image, yielding the final phase segmented image. 
-	- This will be saved at `./path/to/file_final_seg.npy`
+	- The segmented 3D images will be saved at `./path/to/file_final_seg.npy`
+	- A preview slice of the segmented image will be saved at `./path/to/file_final_slice_0.png`
+	- Final segmentation parameters will be saved in `./path/to/file_seg_params.txt`
+	
+Some example outputs are shown below 
 
 
 

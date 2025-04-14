@@ -1,0 +1,3 @@
+Gradient Threshold: 0.08571428571428572
+Black-Grey Threshold: 0.41675051336592317
+Grey-White Threshold: 0.7228589416551812

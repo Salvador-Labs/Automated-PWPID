@@ -13,6 +13,17 @@ import pandas as pd
 
 from scipy.signal import find_peaks, argrelmin
 
+def save_thresholds_to_file(grad_thresh, bg_thresh, gw_thresh, filename):
+    
+    savename = os.path.splitext(filename)[0]+'_seg_params.txt'
+    # Open the file in write mode
+    with open(savename, 'w') as file:
+        file.write(f"Gradient Threshold: {grad_thresh}\n")
+        file.write(f"Black-Grey Threshold: {bg_thresh}\n")
+        file.write(f"Grey-White Threshold: {gw_thresh}\n")
+    
+    print(f"Segmentation parameters saved to {savename}")
+
 def npytotif(img,filepath):
     dim = img.shape
     slice_img = np.zeros(shape=(img.shape[1],img.shape[2]),dtype=int)
@@ -211,7 +222,7 @@ def check_gradient(filename,filepath):
 def save_gradient_sweep(thresholds,num_markers,filepath):
     savename = os.path.join(filepath,'num_marker.csv')
     if os.path.exists(savename):
-        savetext = 'markers_' + str(np.random.randint(0,1000000)) + '.csv'
+        savetext = './num_marker_' + str(np.random.randint(0,1000000)) + '.csv'
         savename = os.path.join(filepath,savetext)
     
     d = {
@@ -268,7 +279,7 @@ def plot_results_grad_thresh_results(threshs,num_markers,filepath):
     max_marker_thresh = threshs[np.argmax(num_markers)]
 
     plt.close('all')
-    plt.figure(figsize=(5,5))
+    plt.figure(figsize=(6,5))
     plt.scatter(threshs,num_markers,s=10,color='blue')
     plt.xlabel('Gradient Threshold',fontsize=12)
     plt.ylabel('Number of Markers',fontsize=12)
