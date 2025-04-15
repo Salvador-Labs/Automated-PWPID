@@ -33,7 +33,7 @@ Automated-PWPID/
 
 All segmentation codes are written in Python, which can be downloaded and installed [here](https://www.python.org/downloads/). Codes have been tested for Python version 3.11.8. 
 
-A thorough list of dependencies are listed in `requirements.txt`. It is recommended that a package manager like [Anaconda](https://www.anaconda.com/docs/getting-started/miniconda/install#macos-linux-installation) or [pip](https://pypi.org/project/pip/) is used for installing Python libraries. 
+Dependencies are listed in `requirements.txt`. It is recommended that a package manager like [Anaconda](https://www.anaconda.com/docs/getting-started/miniconda/install#macos-linux-installation) or [pip](https://pypi.org/project/pip/) is used for installing Python libraries. 
 
 To avoid conflicting dependencies, it is best to make a virtual environment with its own python modules. You can create an environment called `segment` and install all of the dependencies with the code below:
 
@@ -44,7 +44,7 @@ pip install -r requirements.txt
 </pre>
 
 
-If the environment does not properly install all of the dependencies in `requirements.txt`, or if you wish to manually install each dependency, you should be able to using commands below:
+If the environment does not properly install all of the dependencies in `requirements.txt`, or if you wish to manually install each dependency, you should be able to using the commands below:
 
 <pre>pip install numpy==2.2.4
 pip install matplotlib==3.10.1
@@ -73,7 +73,7 @@ Here's a simple example:
 
 <pre>python NLM_FILTER.py "./path/to/file.npy" sweep  </pre>
 
-The code above will run a parametric sweep of the filter cutoff `h` (read more about how NLM filtering works [here](https://doi.org/10.1109/CVPR.2005.38)) and plot the resulting gradient distributions and sample gradient image. These results will be saved in `./path/to/file_NLM_SWEEP` or `./path/to/file_NLM_SWEEP_i` if there are preexisting sweep results. Figures will be saved with the resulting gradient distributions and sample gradient images. 
+The code above will run a parametric sweep of the filter cutoff `h` (read more about how NLM filtering works [here](https://doi.org/10.1109/CVPR.2005.38)) and plot the resulting gradient distributions and sample gradient images. These results will be saved in `./path/to/file_NLM_SWEEP` or `./path/to/file_NLM_SWEEP_i` if there are preexisting sweep results. Figures will be saved with the resulting gradient distributions and sample gradient images. 
 
 `NLM_FILTER.py` has options to manually enter sweep parameters. Here's an example:
 
@@ -168,7 +168,7 @@ If only running the gradient threshold sweep is desired:
 
 <pre>python main.py "./path/to/file.npy" thresh -b_thresh 0.0 -t_thresh 5.0 -nthresh 100 -mode parallel </pre>
 
-The code snipped above will compute the gradient image of `file.npy` and run the gradient threshold sweep from `0.0` to `5.0` with `100` values. Results will be saved in `num_markers.csv` 
+The code snippet above will compute the gradient image of `file.npy` and run the gradient threshold sweep from `0.0` to `5.0` with `100` values. Results will be saved in `num_markers.csv` 
 
 If wanting to watershed an image at a specific gradient threshold:
 
@@ -176,7 +176,7 @@ If wanting to watershed an image at a specific gradient threshold:
 
 The code snippet above will compute the gradient image of `file.npy` and perform the watershed transform with the gradient threshold `0.15`. Output files from step 4 above will be saved. 
 
-If want to phase-ID a watershedded image:
+If you want to phase-ID a watershedded image:
 
 <pre>python main.py "./path/to/file_avg_img.npy" phase_id 100 180 </pre>
 
