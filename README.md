@@ -33,21 +33,33 @@ Automated-PWPID/
 
 All segmentation codes are written in Python, which can be downloaded and installed [here](https://www.python.org/downloads/). Codes have been tested for Python version 3.11.8. 
 
-Dependencies are listed in `requirements.txt`. You can create a virtual environment for executing the segmentation with the code snippet below.  
+A thorough list of dependencies are listed in `requirements.txt`. It is recommended that a package manager like [Anaconda](https://www.anaconda.com/docs/getting-started/miniconda/install#macos-linux-installation) or [pip](https://pypi.org/project/pip/) is used for installing Python libraries. 
 
-<pre>conda install numpy
-conda install matplotlib
-conda install scipy
-conda install scikit-image
-conda install opencv
-conda install pandas 
-conda install tqdm
-pip install connected-components-3d
-pip install pqdm
-pip install PyWavelets
+To avoid conflicting dependencies, it is best to make a virtual environment with its own python modules. You can create an environment called `segment` and install all of the dependencies with the code below:
+
+<pre>
+conda create --name segment python==3.11.8
+conda activate segment
+pip install -r requirements.txt
 </pre>
 
---
+
+If the environment does not properly install all of the dependencies in `requirements.txt`, or if you wish to manually install each dependency, you should be able to using commands below:
+
+<pre>pip install numpy==2.2.4
+pip install matplotlib==3.10.1
+pip install scipy==1.15.2
+pip install scikit-image==0.25.2
+pip install opencv-python==4.11.0.86
+pip install pandas==2.2.3
+pip install tqdm==4.67.1
+pip install connected-components-3d==3.23.0
+pip install pqdm==0.2.0
+pip install PyWavelets==1.8.0
+</pre>
+
+
+---
 
 ## 🛠️ Usage
 
