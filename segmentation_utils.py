@@ -263,7 +263,7 @@ def get_gradients(filename,img):
     # If no gradient file exists, creates one and saves it
     else:
         print("No gradient file found for",os.path.basename(filename),". Computing gradients...")
-        grads = sobel_gradients(img)
+        grads = sobel_gradients(img.astype(float))
         np.save(os.path.join(os.path.dirname(filename),grad_save),grads)
         print("Done. Gradient file saved as",grad_save)
 
