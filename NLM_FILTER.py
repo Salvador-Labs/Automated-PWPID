@@ -135,7 +135,7 @@ if __name__ == '__main__':
     if args.mode == 'single':
         print('Will perform filter on',args.filename)
         # Filter image
-        filter_img((args.filename,args.h_val,None,True))
+        filter_img((args.filename,args.h,None,True))
 
     elif args.mode== 'sweep':
 
