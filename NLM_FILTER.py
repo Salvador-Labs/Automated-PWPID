@@ -91,7 +91,7 @@ def filter_img(inputs):
     denoise = denoise_nl_means(img, h=h_val * sigma_est, preserve_range=True,fast_mode=True, **patch_kw)
     
     if dirname == None:
-        savename = os.path.basename(filepath)[0:-4]+'_filtered.npy'
+        savename = os.path.basename(filepath)[0:-4]+'_filtered_'+str(round(h_val,3))+'.npy'
         np.save(os.path.join(os.path.dirname(filepath),savename),denoise)  
         print("Filtered image saved at: savename")
     else:
