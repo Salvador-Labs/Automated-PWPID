@@ -22,7 +22,7 @@ Automated-PWPID/
 
 ├── `CONV_FILE.py` # Script for converting between `.npy`, `.tif`, and `.tiff` files.
 
-├── `test_files/`` # Example data for testing script 
+├── `test_files/` # Example data for testing script 
 
 ├── `requirements.txt` # Dependencies 
 
@@ -75,7 +75,7 @@ Here's a simple example:
 
 <pre>python NLM_FILTER.py "./path/to/file.npy" sweep  </pre>
 
-The code above will run a parametric sweep of the filter cutoff `h` (read more about how NLM filtering works [here](https://doi.org/10.1109/CVPR.2005.38)) and plot the resulting gradient distributions and sample gradient images. These results will be saved in `./path/to/file_NLM_SWEEP` or `./path/to/file_NLM_SWEEP_i` if there are preexisting sweep results. Figures will be saved with the resulting gradient distributions and sample gradient images. 
+The code above will run a parametric sweep of the filter cutoff `h` (read more about how NLM filtering works [here](https://doi.org/10.1109/CVPR.2005.38)) and plot the resulting gradient distributions and sample gradient images. These results will be saved in `./path/to/file_NLM_SWEEP` or `./path/to/file_NLM_SWEEP_i` if there are preexisting sweep results. Figures will be saved with the resulting gradient distributions and sample gradient images. `NLM_FILTER.py` can take `.npy`, `.tif`, and `.tiff` files as input.  
 
 `NLM_FILTER.py` has options to manually enter sweep parameters. Here's an example:
 
@@ -172,7 +172,7 @@ If you wish to segment all files in a folder:
 
 <pre>python main.py "./path/to/folder" full -b_thresh 0.0 -t_thresh 0.5 -nthresh 100 -comp parallel </pre>
 
-The code above will segment all files with recognized file extensions (`.npy`, `.tif`, `.tiff`). If the folder contains files with `.npy` _AND_ `.tif` or `.tiff`, the code will raise an error and cease execution. 
+The code above will segment all files with recognized file extensions (`.npy`, `.tif`, `.tiff`). If the folder contains files with `.npy` _AND_ `.tif` or `.tiff`, the code will raise an error and cease execution. All files produced from each segmentation will be save in `./path/to/folder`.
 
 
 #### Manual Segmentation
@@ -197,6 +197,8 @@ If you want to phase-ID a watershedded image:
 
 The code snippet above will phase-ID the input post-watershed image with regions assigned the marker average greyscale according to black-grey threshold `100` and grey-white threshold `180`. The phase-id function _cannot_ take `.tif` and `.tiff` files as input, only `.npy` files. This function should only be used on the `file_avg_img.npy` output from the watershed function. All outputs will be saved as `.npy` files.
 
+Similar to the full automated segmentation, each of the individual steps described above can be run on a folder of files. 
+
 
 ### Converting between 3D `.npy` and 2D `.tiff` stacks with `CONV_FILE.py`
 
@@ -206,19 +208,19 @@ To convert a `.tif` file to a `.npy` file:
 
 <pre>python CONV_FILE.py "./path/to/file.tif" </pre>
 
-the `.npy` file will be saved at `./path/to/file.npy`.
+The code above will save the `.npy` file at `./path/to/file.npy`.
 
 To convert a `.npy` file to a `.tiff` file:
 
 <pre>python CONV_FILE.py "./path/to/file.npy" </pre>
 
-the `.npy` file will be saved at `./path/to/file.tiff`.
+The code above will save the `.tiff` file at `./path/to/file.tiff`.
 
 To convert a `.npy` file to a `.tif` file:
 
 <pre>python CONV_FILE.py "./path/to/file.npy" -format .tif</pre>
 
-the `.npy` file will be saved at `./path/to/file.tif`. When using the `-format` flag with `.tif` or `.tiff`, the code assumes that the input file has the `.npy` format.
+The code above will save the `.npy` file at `./path/to/file.tif`. When using the `-format` flag with `.tif` or `.tiff`, the code assumes that the input file has the `.npy` format.
 
 
 
