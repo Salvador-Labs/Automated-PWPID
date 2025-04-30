@@ -10,8 +10,107 @@ import os
 import time
 import cc3d
 import pandas as pd
+from tqdm import tqdm
+import tifffile as tiff
+
 
 from scipy.signal import find_peaks, argrelmin
+
+def save_3d_array_as_tiff(array, path):
+
+    if array.ndim != 3:
+        raise ValueError(f"Expected a 3D array, got shape {array.shape}")
+    
+    tiff.imwrite(
+        path,
+        array.astype(np.uint8),  # or uint8 depending on your data
+        photometric='minisblack',  # ensures grayscale appearance
+        compression='zlib'         # improves compatibility
+    )
+
+def list_tif_npy_files(folder_path):
+    """
+    Lists all .tif/.tiff or .npy files in the given folder.
+
+    If both .tif/.tiff and .npy files are found, raises a ValueError.
+
+    Parameters:
+    - folder_path (str): Path to a directory.
+
+    Returns:
+    - List[str]: Sorted list of matching file paths.
+
+    Raises:
+    - NotADirectoryError: If the path is not a directory.
+    - ValueError: If both .tif/.tiff and .npy files are found.
+    """
+    if not os.path.isdir(folder_path):
+        raise NotADirectoryError(f"Provided path is not a directory: {folder_path}")
+
+    tif_files = []
+    npy_files = []
+
+    for fname in os.listdir(folder_path):
+        full_path = os.path.join(folder_path, fname)
+        if os.path.isfile(full_path):
+            _, ext = os.path.splitext(fname)
+            ext = ext.lower()
+            if ext in [".tif", ".tiff"]:
+                tif_files.append(full_path)
+            elif ext == ".npy":
+                npy_files.append(full_path)
+
+    if tif_files and npy_files:
+        raise ValueError("Folder contains both .tif/.tiff and .npy files, which is not allowed. It is not clear which files to segment. Remove files without your preferred extension.")
+
+    return sorted(tif_files + npy_files)
+
+def read_tif_stack(path):
+    """
+    Reads a 3D .tif stack into a 3D NumPy array.
+
+    Parameters:
+    - path (str): Path to the .tif file.
+
+    Returns:
+    - np.ndarray: 3D array (depth, height, width).
+    """
+    array = tiff.imread(path)
+    if array.ndim != 3:
+        raise ValueError(f"Expected a 3D .tif stack, but got shape {array.shape}")
+    return array
+
+def identify_path_type(path):
+    """
+    Identifies the type of a given path.
+
+    Parameters:
+    - path (str): A file or folder path.
+
+    Returns:
+    - str: One of "folder", "npy", or "tif"
+
+    Raises:
+    - FileNotFoundError: If the path does not exist.
+    - ValueError: If the path is neither a folder, a .npy file, nor a .tif file.
+    """
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"The path does not exist: {path}")
+
+    if os.path.isdir(path):
+        return "folder"
+    elif os.path.isfile(path):
+        _, ext = os.path.splitext(path)
+        ext = ext.lower()
+        if ext == ".npy":
+            return "npy"
+        elif ext in [".tif", ".tiff"]:
+            return "tif"
+        else:
+            raise ValueError(f"File extension '{ext}' is not supported. Only .npy and .tif/.tiff files are allowed.")
+    else:
+        raise ValueError(f"The path '{path}' is neither a regular file nor a folder.")
+
 
 def save_thresholds_to_file(grad_thresh, bg_thresh, gw_thresh, filename):
     
@@ -219,11 +318,10 @@ def check_gradient(filename,filepath):
 
 
 
-def save_gradient_sweep(thresholds,num_markers,filepath):
-    savename = os.path.join(filepath,'num_marker.csv')
+def save_gradient_sweep(thresholds,num_markers,filepath,verbose=True):
+    savename = os.path.splitext(filepath)[0]+'_num_marker.csv'
     if os.path.exists(savename):
-        savetext = './num_marker_' + str(np.random.randint(0,1000000)) + '.csv'
-        savename = os.path.join(filepath,savetext)
+        savename = savename[0:-4]+'_' + str(np.random.randint(0,1000000)) + '.csv'
     
     d = {
         'threshold' : thresholds,
@@ -231,7 +329,8 @@ def save_gradient_sweep(thresholds,num_markers,filepath):
     }
     df = pd.DataFrame(d)
     df.to_csv(savename)
-    print("Save markers results as",savename)
+    if verbose:
+        print("Save markers results as",savename)
 
 def check_threshs(b_thresh,t_thresh,n_thresh):
     # This function checks if inputs for gradient
@@ -247,25 +346,28 @@ def check_threshs(b_thresh,t_thresh,n_thresh):
         print('Invalid number of steps for gradient threshold sweep.')
         exit()
 
-def get_gradients(filename,img):
+def get_gradients(filename,img,verbose=True):
 
     # Creates list of all .npy files in filename directory (used to check if gradient file exists)
     files = get_npy_files(os.path.dirname(filename))
 
     # Filename for gradients file
-    grad_save = os.path.basename(filename)[0:-4] + '_gradients.npy'
+    grad_save = os.path.splitext(os.path.basename(filename))[0] + '_gradients.npy'
 
     # Checks if gradient file exists 
     if check_gradient(os.path.basename(filename),os.path.dirname(filename)):
-        print("A gradient file for",os.path.basename(filename),"has been found. It will be used.")
+        if verbose:
+            print("A gradient file for",os.path.basename(filename),"has been found. It will be used.")
         grads = np.load(os.path.join(os.path.dirname(filename),grad_save))
     
     # If no gradient file exists, creates one and saves it
     else:
-        print("No gradient file found for",os.path.basename(filename),". Computing gradients...")
+        if verbose:
+            print("No gradient file found for",os.path.basename(filename),". Computing gradients...")
         grads = sobel_gradients(img.astype(float))
         np.save(os.path.join(os.path.dirname(filename),grad_save),grads)
-        print("Done. Gradient file saved as",grad_save)
+        if verbose:
+            print("Done. Gradient file saved as",grad_save)
 
     return grads
 
@@ -293,7 +395,7 @@ def plot_results_grad_thresh_results(threshs,num_markers,filepath):
 
     return max_marker_thresh
 
-def analyze_post_water_dist(avg_grey,size,filename):
+def analyze_post_water_dist(avg_grey,size,filename,verbose=True):
 
 
     counts, bin_edges = np.histogram(avg_grey, weights=size, density=True,bins=np.linspace(np.amin(avg_grey),np.amax(avg_grey),255))
@@ -343,15 +445,15 @@ def analyze_post_water_dist(avg_grey,size,filename):
     savename = os.path.splitext(filename)[0] + '_post-water_dist.png'
     plt.savefig(savename,dpi=300)   
     
-
-    print("BG Min:",round(min1_x,3))
-    print("GW Min:",round(min2_x,3))
+    if verbose:
+        print("BG Min:",round(min1_x,3))
+        print("GW Min:",round(min2_x,3))
 
     return min1_x,min2_x
 
 
 
-def threshold_sweep_main(filename,b_thresh,t_thresh,n_thresh,mode,full=False):
+def threshold_sweep_main(filename,b_thresh,t_thresh,n_thresh,mode,verbose=True,full=False):
     '''
     This function is the main wrapper for the gradient threshold step 
     of watershed segmentation.
@@ -360,11 +462,18 @@ def threshold_sweep_main(filename,b_thresh,t_thresh,n_thresh,mode,full=False):
     # Performs basic checks on inputs
     check_threshs(b_thresh,t_thresh,n_thresh)
 
+    # Get file type 
+    path_type = identify_path_type(filename)
+
     # Load microstructure
-    img = np.load(filename)
+    if path_type == "npy":
+        img = np.load(filename)
+    elif path_type == "tif":
+        img = read_tif_stack(filename)
+    
 
     # Finds saved gradient file or computes new one
-    grads = get_gradients(filename,img)
+    grads = get_gradients(filename,img,verbose=verbose)
 
     # Creates an array of thresholds to test
     thresholds = np.linspace(b_thresh,t_thresh,int(n_thresh))
@@ -375,18 +484,21 @@ def threshold_sweep_main(filename,b_thresh,t_thresh,n_thresh,mode,full=False):
         # Initializes array for number of markers outpuit
         num_markers= np.zeros(n_thresh)
 
-        print("Gradient threshold will be swept from",b_thresh,"to",t_thresh)
+        if verbose:
+            print("Gradient threshold will be swept from",b_thresh,"to",t_thresh)
 
         # Iterates through each threshold
         for i in range(n_thresh):
-            print("Beginning",thresholds[i])
+            if verbose:
+                print("Beginning",thresholds[i])
             num_markers[i] = gradient_threshold((grads,thresholds[i]))
 
     # Operates sweep in parallel mode (multiple thresholds at once)
     if mode == 'parallel':
 
-        print("Gradient threshold will be swept from",b_thresh,"to",t_thresh)
-        print("Running in parallel mode")
+        if verbose:
+            print("Gradient threshold will be swept from",b_thresh,"to",t_thresh)
+            print("Running in parallel mode")
 
         # Prepares inputs for parallel operation
         inputs = [(grads,threshold) for threshold in thresholds]
@@ -395,22 +507,30 @@ def threshold_sweep_main(filename,b_thresh,t_thresh,n_thresh,mode,full=False):
         num_markers = pqdm(inputs,gradient_threshold,n_jobs=mp.cpu_count())
 
     # Saves results from threshold sweep to .csv file
-    save_gradient_sweep(thresholds,num_markers,os.path.dirname(filename))
+    save_gradient_sweep(thresholds,num_markers,filename,verbose=verbose)
 
-    print("Gradient threshold sweep completed")
+    if verbose:
+        print("Gradient threshold sweep completed")
 
     if full:
         return thresholds,num_markers
 
-def watershed_main(filename,thresh,full=False):
+def watershed_main(filename,thresh,verbose=True,full=False):
+
+    # Get file type 
+    path_type = identify_path_type(filename)
 
     # Load microstructure
-    img = np.load(filename)
+    if path_type == "npy":
+        img = np.load(filename)
+    elif path_type == "tif":
+        img = read_tif_stack(filename)
 
     # Finds saved gradient file or computes new one
     grads = get_gradients(filename,img)
     
-    print("Watershedding ",os.path.basename(filename))
+    if verbose:
+        print("Watershedding ",os.path.basename(filename))
 
     # Watersheds image
     avg_grey, marker_size,size,seg_img,avg_img = watershed_image(img,grads,thresh,plot_results=False)
@@ -427,13 +547,14 @@ def watershed_main(filename,thresh,full=False):
     savename = os.path.splitext(os.path.basename(filename))[0]+'_avg_img.npy'
     np.save(os.path.join(os.path.dirname(filename),savename),avg_img)
 
-    print("Watershed output files saved in ",os.path.dirname(filename))
+    if verbose:
+        print("Watershed output files saved in ",os.path.dirname(filename))
 
     if full:
         return avg_grey, marker_size,size,seg_img,avg_img
 
 
-def phase_id_main(filename,bg_thresh,gw_thresh,full=False):
+def phase_id_main(filename,bg_thresh,gw_thresh,verbose=True,full=False,original_name=None):
 
     # Loads microstructure
     img = np.load(filename)
@@ -441,18 +562,42 @@ def phase_id_main(filename,bg_thresh,gw_thresh,full=False):
     # Phase_id's watershedded image
     seg_img = threshold_volume(img,bg_thresh,gw_thresh)
 
-    savename = os.path.splitext(filename)[0][0:-8] + '_final_seg.npy'
-    np.save(savename,seg_img) 
+    if original_name:
+        # What type of file
+        path_type = identify_path_type(original_name)
+        # If tif file, save as tif stack
+        if path_type == "tif":
+            savename = os.path.splitext(original_name)[0] + '_final_seg.tiff'
 
-    print("Segmented microstructure saved at ",savename,'final_seg.npy')
+            seg_tiff_save = np.zeros(shape=seg_img.shape,dtype=np.uint8)
+
+            seg_tiff_save[seg_img == 1] = 0
+            seg_tiff_save[seg_img == 2] = 127
+            seg_tiff_save[seg_img == 3] = 255
+
+            save_3d_array_as_tiff(seg_tiff_save, savename)
+        # If npy file, save as npy file
+        elif path_type == "npy":
+            savename = os.path.splitext(original_name)[0] + '_final_seg.npy'
+            np.save(savename,seg_img) 
+    else:
+        savename = os.path.splitext(filename)[0][0:-8] + '_final_seg.npy'
+        np.save(savename,seg_img) 
+
+    if verbose:
+        print("Segmented microstructure saved at ",savename,'final_seg.npy')
 
     if full:
         plt.close('all')
         plt.figure(figsize=(10,5))
 
         # Load original for comparison
-        original = os.path.splitext(filename)[0][0:-8]+'.npy'
-        grey = np.load(original)
+        path_type = identify_path_type(original_name)
+        # Load microstructure
+        if path_type == "npy":
+            grey = np.load(original_name)
+        elif path_type == "tif":
+            grey = read_tif_stack(original_name)
 
         plt.subplot(1,2,1)
         plt.imshow(grey[0],cmap='gray')

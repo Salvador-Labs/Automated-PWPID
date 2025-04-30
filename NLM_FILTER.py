@@ -18,6 +18,7 @@ import argparse
 from tqdm import tqdm
 from pqdm.processes import pqdm
 import multiprocessing as mp
+import tifffile as tiff
 
 def parseargs():
     p = argparse.ArgumentParser(description="Performs NLM filter on single file")
@@ -36,6 +37,64 @@ def parseargs():
     p_single.add_argument('h',type=float,help='h_val: Patch cut-off distance (grey_levels). The higher the h_val, the more agressive the filtering. ')
     
     return p.parse_args()
+
+def save_3d_array_as_tiff(array, path):
+
+    if array.ndim != 3:
+        raise ValueError(f"Expected a 3D array, got shape {array.shape}")
+    
+    tiff.imwrite(
+        path,
+        array.astype(np.uint16),  # or uint8 depending on your data
+        photometric='minisblack',  # ensures grayscale appearance
+        compression='zlib'         # improves compatibility
+    )
+
+def read_tif_stack(path):
+    """
+    Reads a 3D .tif stack into a 3D NumPy array.
+
+    Parameters:
+    - path (str): Path to the .tif file.
+
+    Returns:
+    - np.ndarray: 3D array (depth, height, width).
+    """
+    array = tiff.imread(path)
+    if array.ndim != 3:
+        raise ValueError(f"Expected a 3D .tif stack, but got shape {array.shape}")
+    return array
+
+def identify_path_type(path):
+    """
+    Identifies the type of a given path.
+
+    Parameters:
+    - path (str): A file or folder path.
+
+    Returns:
+    - str: One of "folder", "npy", or "tif"
+
+    Raises:
+    - FileNotFoundError: If the path does not exist.
+    - ValueError: If the path is neither a folder, a .npy file, nor a .tif file.
+    """
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"The path does not exist: {path}")
+
+    if os.path.isdir(path):
+        return "folder"
+    elif os.path.isfile(path):
+        _, ext = os.path.splitext(path)
+        ext = ext.lower()
+        if ext == ".npy":
+            return "npy"
+        elif ext in [".tif", ".tiff"]:
+            return "tif"
+        else:
+            raise ValueError(f"File extension '{ext}' is not supported. Only .npy and .tif/.tiff files are allowed.")
+    else:
+        raise ValueError(f"The path '{path}' is neither a regular file nor a folder.")
 
 
 def make_unique_directory(base_name, parent_dir='.'):
@@ -79,7 +138,13 @@ def filter_img(inputs):
 
     filepath,h_val,dirname,save = inputs
 
-    img = np.load(filepath)
+    # Load original for comparison
+    path_type = identify_path_type(filepath)
+    # Load microstructure
+    if path_type == "npy":
+        img = np.load(filepath)
+    elif path_type == "tif":
+        img = read_tif_stack(filepath)
     
     # Estimates sigma for image
     sigma_est = np.mean(estimate_sigma(img))
@@ -87,17 +152,26 @@ def filter_img(inputs):
     # Patch size for analysis
     patch_kw = dict(patch_size=5, patch_distance=6)
     
-    # slow algorithm 
+    # Fast algorithm 
     denoise = denoise_nl_means(img, h=h_val * sigma_est, preserve_range=True,fast_mode=True, **patch_kw)
     
     if dirname == None:
-        savename = os.path.basename(filepath)[0:-4]+'_filtered_'+str(round(h_val,3))+'.npy'
-        np.save(os.path.join(os.path.dirname(filepath),savename),denoise)  
-        print("Filtered image saved at: savename")
+        if path_type == "npy":
+            savename = os.path.basename(filepath)[0:-4]+'_filtered_'+str(round(h_val,3))+'.npy'
+            np.save(os.path.join(os.path.dirname(filepath),savename),denoise)  
+        elif path_type == "tif":
+            savename = os.path.splitext(os.path.basename(filepath))[0]+'_filtered_'+str(round(h_val,3))+'.tiff'
+            save_3d_array_as_tiff(denoise.astype(np.uint16), os.path.join(os.path.dirname(filepath),savename))
+        print("Filtered image saved at:",savename)
     else:
         if save:
-            savename = os.path.basename(filepath)[0:-4]+'_filtered_'+str(round(h_val,3))+'.npy'
-            np.save(os.path.join(dirname,savename),denoise) 
+            if path_type == "npy":
+                savename = os.path.basename(filepath)[0:-4]+'_filtered_'+str(round(h_val,3))+'.npy'
+                np.save(os.path.join(dirname,savename),denoise)  
+            elif path_type == "tif":
+                savename = os.path.splitext(os.path.basename(filepath))[0]+'_filtered_'+str(round(h_val,3))+'.tiff'
+                save_3d_array_as_tiff(denoise.astype(np.uint16), os.path.join(dirname,savename))
+            print("Filtered image saved at:",savename)
         
         # Compute graidents 
         grads = sobel_gradients(denoise)

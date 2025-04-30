@@ -6,7 +6,7 @@ Automated Post-Watershed Phase-ID Segmentation (PWPID):  segments 3D, 3-phase mi
 
 ## 📓 Overview
 
-This project performs 3D segmentation on 3-phase microstructure datasets where phases can be differentiated via their greyscale  values. The code processes 3D microstructure reconstructions and perform phase segmentation, where each voxel is labeled with 1,2, or 3 depending on its phase. It was developed and tested for segmenting 3-phase solid oxide cell (SOC) microstructures. This code requires files in the [.npy](https://numpy.org/doc/stable/reference/generated/numpy.lib.format.html) file format. 
+This project performs 3D segmentation on 3-phase microstructure datasets where phases can be differentiated via their greyscale  values. The code processes 3D microstructure reconstructions and perform phase segmentation, where each voxel is labeled with 1,2, or 3 depending on its phase. It was developed and tested for segmenting 3-phase solid oxide cell (SOC) microstructures. This code supports files in the [.npy](https://numpy.org/doc/stable/reference/generated/numpy.lib.format.html) [.tiff](https://www.adobe.com/creativecloud/file-types/image/raster/tiff-file.html#:~:text=A%20TIFF%2C%20which%20stands%20for,to%20avoid%20lossy%20file%20formats.) file formats. 
 
 ---
 
@@ -14,17 +14,19 @@ This project performs 3D segmentation on 3-phase microstructure datasets where p
 
 Automated-PWPID/ 
 
-├── main.py # Main segmentation script 
+├── `main.py` # Main segmentation script 
 
-├── segmentation_utils.py # Helper functions 
+├── `segmentation_utils.py` # Helper functions 
 
-├── NLM_FILTER.py # Script for running non-local means filtering
+├── `NLM_FILTER.py` # Script for running non-local means filtering
 
-├── test_files/ # Example data for testing script 
+├── `CONV_FILE.py` # Script for converting between `.npy`, `.tif`, and `.tiff` files.
 
-├── requirements.txt # Dependencies 
+├── `test_files/`` # Example data for testing script 
 
-└── README.md # Project documentation
+├── `requirements.txt` # Dependencies 
+
+└── `README.md` # Project documentation
 
 
 ---
@@ -87,6 +89,8 @@ Once a value for `h` has been selected, you can obtain a filtered image like so
 
 The code above will filter `file.npy` with an `h` of `1.0` and save the filtered image as `./path/to/file_filtered.npy`.
 
+Output files will be saved with the same file format as the input (i.e. `.tif`, `.tiff`, or `.npy`).
+
 #### How to select the proper `h` value?
 
 The figure below shows a comparison between the grayscale images, gradient images, greyscale distributions, and gradient distributions before and after NLM filtering. The greyscale image below contains curtaining artifacts and intra-region greyscale variability that show up as grey patches in the gradient image and tall second and third maxima in the gradient distribution. These kinds of artifacts/noise can cause issues during segmentation. When selecting a filter cutoff `h`, it is recommended that the value should be selected that yields the _tallest_ first peak in the gradient distribution and the _lowest_ second and third peaks. A tall first peak signifies low intra region greyscale variability and low second and third peaks signify sharp inter-phase boundaries, which are ideal for segmentation. If the filtering is _too_  aggressive  (h is too high), the three peaks will begin to merge as boundaries are blurred together. 
@@ -106,11 +110,13 @@ If you have not read the prior section on image pre-processing, it is highly rec
 
 The codes herein implement manual and automated versions of the segmentation methodology detailed in  _Automated Phase Segmentation with Quantifiable Sensitivities of Three-Phase Microstructures of Solid Oxide Cell Electrodes_ submitted to Materials Characterization (under review).
 
+All functions in `main.py` explained below can segment a _single_ file or _all relevant_ files in a folder. If the path to a _file_ is provided, the code will segment that file. If the path to a _folder_ is provided, the code will segment every relevant file in that folder. It is recommended that you remove any unnecessary files from the folder before running the code so as not to confuse the input-output functions. 
+
 Segmentation can be performed manually or in an automated fashion using `main.py`. 
 
 #### Automated Segmentation
 
-A 3D image can be segmented using the automated method with the following line
+A single 3D image can be segmented using the automated method with the following line
 
 <pre>python main.py "./path/to/file.npy" full </pre>
 
@@ -156,9 +162,18 @@ Some example outputs from segmenting `test_files/test_volume.npy` (a Xe Plasma F
 
 The automated code assumes that `0.0` and `0.3` is a reasonable range for  running the gradient threshold sweep. If the gradient threshold does not yield a clear minimum, or if more thresholds should be tested, you can run the code as follows:
 
-<pre>python main.py "./path/to/file.npy" full -b_thresh 0.0 -t_thresh 5.0 -nthresh 100 -comp parallel </pre>
+<pre>python main.py "./path/to/file.npy" full -b_thresh 0.0 -t_thresh 0.5 -nthresh 100 -comp parallel </pre>
 
-The code above will run the threshold sweep with `100` values ranging from `0.0` to `5.0`. `-comp parallel` will have the code use all available processing cores to run the sweep in parallel. 
+The code above will run the threshold sweep with `100` values ranging from `0.0` to `0.5`. `-comp parallel` will have the code use all available processing cores to run the sweep in parallel. 
+
+The automated implementation of segmentation can take `.tif` and 	`.tiff` image stacks as input in addition to `.npy` files. The final segmented image will be saved to `./path/to/file_final_seg.tiff` if the input file is `.tiff` or `.tif`. All other files generated from the segmentation will be saved as `.npy` files.
+
+If you wish to segment all files in a folder:
+
+<pre>python main.py "./path/to/folder" full -b_thresh 0.0 -t_thresh 0.5 -nthresh 100 -comp parallel </pre>
+
+The code above will segment all files with recognized file extensions (`.npy`, `.tif`, `.tiff`). If the folder contains files with `.npy` _AND_ `.tif` or `.tiff`, the code will raise an error and cease execution. 
+
 
 #### Manual Segmentation
 
@@ -166,22 +181,44 @@ Three segmentation steps can be run manually if desired.
 
 If only running the gradient threshold sweep is desired:
 
-<pre>python main.py "./path/to/file.npy" thresh -b_thresh 0.0 -t_thresh 5.0 -nthresh 100 -mode parallel </pre>
+<pre>python main.py "./path/to/file.npy" thresh -b_thresh 0.0 -t_thresh 0.5 -nthresh 100 -mode parallel </pre>
 
-The code snippet above will compute the gradient image of `file.npy` and run the gradient threshold sweep from `0.0` to `5.0` with `100` values. Results will be saved in `num_markers.csv` 
+The code snippet above will compute the gradient image of `file.npy` and run the gradient threshold sweep from `0.0` to `0.5` with `100` values. Results will be saved in `num_markers.csv`. The gradient threshold sweep can take `.tif` and `.tiff` files as input. All outputs will be saved as `.npy` files.
 
 If wanting to watershed an image at a specific gradient threshold:
 
 <pre>python main.py "./path/to/file.npy" watershed 0.15 </pre>
 
-The code snippet above will compute the gradient image of `file.npy` and perform the watershed transform with the gradient threshold `0.15`. Output files from step 4 above will be saved. 
+The code snippet above will compute the gradient image of `file.npy` and perform the watershed transform with the gradient threshold `0.15`. Output files from step 4 above will be saved. The watershed function can take `.tif` and `.tiff` files as input. All outputs will be saved as `.npy` files.
 
 If you want to phase-ID a watershedded image:
 
 <pre>python main.py "./path/to/file_avg_img.npy" phase_id 100 180 </pre>
 
-The code snippet above will phase-ID the input post-watershed image with regions assigned the marker average greyscale according to black-grey threshold `100` and grey-white threshold `180`. 
+The code snippet above will phase-ID the input post-watershed image with regions assigned the marker average greyscale according to black-grey threshold `100` and grey-white threshold `180`. The phase-id function _cannot_ take `.tif` and `.tiff` files as input, only `.npy` files. This function should only be used on the `file_avg_img.npy` output from the watershed function. All outputs will be saved as `.npy` files.
 
+
+### Converting between 3D `.npy` and 2D `.tiff` stacks with `CONV_FILE.py`
+
+It is common for 3D microstructure reconstructions to be saved as a stack of 2D images in a single `.tif` or `.tiff` file. `CONV_FILE.py` contains functions that allow users to convert between `.npy` files and `.tif` and `.tiff` files. 
+
+To convert a `.tif` file to a `.npy` file:
+
+<pre>python CONV_FILE.py "./path/to/file.tif" </pre>
+
+the `.npy` file will be saved at `./path/to/file.npy`.
+
+To convert a `.npy` file to a `.tiff` file:
+
+<pre>python CONV_FILE.py "./path/to/file.npy" </pre>
+
+the `.npy` file will be saved at `./path/to/file.tiff`.
+
+To convert a `.npy` file to a `.tif` file:
+
+<pre>python CONV_FILE.py "./path/to/file.npy" -format .tif</pre>
+
+the `.npy` file will be saved at `./path/to/file.tif`. When using the `-format` flag with `.tif` or `.tiff`, the code assumes that the input file has the `.npy` format.
 
 
 
