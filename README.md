@@ -8,6 +8,9 @@ Automated Post-Watershed Phase-ID Segmentation (PWPID):  segments 3D, 3-phase mi
 
 This project performs 3D segmentation on 3-phase microstructure datasets where phases can be differentiated via their greyscale  values. The code processes 3D microstructure reconstructions and perform phase segmentation, where each voxel is labeled with 1,2, or 3 depending on its phase. It was developed and tested for segmenting 3-phase solid oxide cell (SOC) microstructures. This code supports files in the [.npy](https://numpy.org/doc/stable/reference/generated/numpy.lib.format.html) and [.tiff](https://www.adobe.com/creativecloud/file-types/image/raster/tiff-file.html#:~:text=A%20TIFF%2C%20which%20stands%20for,to%20avoid%20lossy%20file%20formats.) file formats. 
 
+If you use code, we ask that you please cite it with [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.15339370.svg)](https://doi.org/10.5281/zenodo.15339370)
+
+
 ---
 
 ## 📁 Repository Structure
